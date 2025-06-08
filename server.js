@@ -3,7 +3,7 @@ const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
 
-const { SP500_SYMBOLS, getRebalanceDates } = require('./sp500-symbols');
+const { SP500_SYMBOLS, SP500_COMPANIES, getRebalanceDates } = require('./sp500-symbols');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -53,8 +53,11 @@ app.get('/api/sp500-prices', async (req, res) => {
       
       // Process the response
       for (const [symbol, bar] of Object.entries(response.data.bars || {})) {
+        // Find the company name from our SP500_COMPANIES list
+        const company = SP500_COMPANIES.find(c => c.symbol === symbol);
         allPrices.push({
           symbol,
+          name: company ? company.name : symbol, // Use company name if found
           price: bar.c, // Close price
           open: bar.o,
           high: bar.h,
@@ -103,10 +106,14 @@ app.get('/api/price/:symbol', async (req, res) => {
       });
     }
     
+    // Find the company name
+    const company = SP500_COMPANIES.find(c => c.symbol === symbol);
+    
     res.json({
       success: true,
       data: {
         symbol,
+        name: company ? company.name : symbol,
         price: bar.c,
         open: bar.o,
         high: bar.h,
