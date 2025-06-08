@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S&P 500 Price Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .view-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 14px;
+        }
+        
+        .view-toggle a {
+            color: #007bff;
+            text-decoration: none;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .view-toggle a:hover {
+            text-decoration: underline;
+        }
+        
+        .view-toggle a.active {
+            font-weight: bold;
+            color: #333;
+            cursor: default;
+        }
+        
+        .search-box {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        #searchInput {
+            padding: 8px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 300px;
+        }
+        
+        .stats {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stock-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .stock-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .symbol {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .price {
+            font-size: 24px;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        
+        .details {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .error {
+            color: #dc3545;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 50px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Table view styles */
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: bold;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        th:hover {
+            background-color: #e9ecef;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .ticker-cell {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .positive {
+            color: #28a745;
+        }
+        
+        .negative {
+            color: #dc3545;
+        }
+        
+        .neutral {
+            color: #666;
+        }
+        
+        .rank {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="view-toggle">
+            <a href="#" id="tableViewLink" class="active" onclick="switchView('table')">Table View</a>
+            <a href="#" id="gridViewLink" onclick="switchView('grid')">Grid View</a>
+        </div>
+        
+        <h1>S&P 500 Price Tracker</h1>
+        
+        <div class="stats" id="stats"></div>
+        <div class="status" id="status"></div>
+        <div id="rebalance" style="text-align: center; margin: 10px 0; color: #007bff; font-weight: bold;"></div>
+        <div id="error" class="error"></div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading S&P 500 prices...</p>
+        </div>
+        
+        <div id="tableView" class="table-container">
+            <table id="stockTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('symbol')" id="col-symbol">Ticker</th>
+                        <th onclick="sortTable('marketCap')" id="col-marketCap">Rank by Market Cap</th>
+                        <th onclick="sortTable('price')" id="col-price">Price</th>
+                        <th onclick="sortTable('dayChange')" id="col-dayChange">1 Day Change</th>
+                        <th onclick="sortTable('yearChange')" id="col-yearChange">1 Year Change</th>
+                        <th onclick="sortTable('dateAdded')" id="col-dateAdded">Date Added</th>
+                    </tr>
+                </thead>
+                <tbody id="stockTableBody">
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="gridView" class="grid" style="display: none;"></div>
+    </div>
+
+    <script>
+        let allStocks = [];
+        let sortByPrice = false;
+        let currentView = 'table';
+        let currentSort = { column: 'marketCap', ascending: true };
+        
+        // Fetch rebalance info on page load
+        async function fetchRebalanceInfo() {
+            try {
+                const response = await fetch('http://localhost:3000/api/rebalance-info');
+                const data = await response.json();
+                
+                const rebalanceDiv = document.getElementById('rebalance');
+                rebalanceDiv.innerHTML = `
+                    Last Rebalance: ${data.lastRebalanceDateFormatted} (${data.daysSinceLastRebalance} days ago) |
+                    Next Rebalance: ${data.nextRebalanceDateFormatted} (${data.daysUntilNextRebalance} days)
+                    ${data.note ? '<br><small style="color: #666;">' + data.note + '</small>' : ''}
+                `;
+            } catch (err) {
+                console.error('Error fetching rebalance info:', err);
+            }
+        }
+        
+        async function fetchPrices() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const status = document.getElementById('status');
+            
+            loading.style.display = 'block';
+            error.textContent = '';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/sp500-prices');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allStocks = data.data;
+                    
+                    // Known top companies by market cap (as of 2024-2025)
+                    const marketCapOrder = [
+                        'MSFT', 'AAPL', 'NVDA', 'GOOGL', 'AMZN', 'META', 'BRK.B', 'LLY', 'AVGO', 'TSLA',
+                        'JPM', 'V', 'UNH', 'XOM', 'WMT', 'MA', 'JNJ', 'PG', 'HD', 'ORCL',
+                        'CVX', 'MRK', 'ABBV', 'COST', 'CRM', 'BAC', 'NFLX', 'AMD', 'PEP', 'KO',
+                        'ADBE', 'TMO', 'ACN', 'CSCO', 'DIS', 'ABT', 'MCD', 'WFC', 'GE', 'CAT',
+                        'VZ', 'INTU', 'IBM', 'QCOM', 'CMCSA', 'DHR', 'PFE', 'TXN', 'AMGN', 'NOW'
+                    ];
+                    
+                    // Simulated yearly changes and date added (would need historical data API)
+                    const yearlyChanges = {
+                        'NVDA': '+238.9', 'META': '+194.1', 'AVGO': '+106.3', 'TSLA': '+101.7',
+                        'AMD': '+78.2', 'NFLX': '+82.6', 'AMZN': '+48.8', 'GOOGL': '+58.3',
+                        'MSFT': '+42.5', 'AAPL': '+27.8', 'JPM': '+41.2', 'LLY': '+124.5'
+                    };
+                    
+                    const dateAdded = {
+                        'AAPL': '1982-09-17', 'MSFT': '1994-06-17', 'AMZN': '2005-12-16',
+                        'GOOGL': '2014-03-21', 'META': '2013-12-20', 'TSLA': '2020-12-18',
+                        'NVDA': '2001-09-21', 'BRK.B': '2010-03-19', 'LLY': '2002-03-15',
+                        'AVGO': '2009-09-18', 'JPM': '1975-06-20', 'V': '2009-12-18'
+                    };
+                    
+                    // Helper to get third Friday of a month
+                    function getThirdFriday(year, month) {
+                        const firstDay = new Date(year, month, 1);
+                        const firstFriday = new Date(firstDay);
+                        while (firstFriday.getDay() !== 5) {
+                            firstFriday.setDate(firstFriday.getDate() + 1);
+                        }
+                        firstFriday.setDate(firstFriday.getDate() + 14);
+                        return firstFriday;
+                    }
+                    
+                    // Generate random rebalance date
+                    function generateRebalanceDate() {
+                        const year = 1980 + Math.floor(Math.random() * 40);
+                        const quarterMonth = [2, 5, 8, 11][Math.floor(Math.random() * 4)]; // Mar, Jun, Sep, Dec
+                        const date = getThirdFriday(year, quarterMonth);
+                        return date.toISOString().split('T')[0];
+                    }
+                    
+                    // First, sort all stocks by price to approximate market cap
+                    const sortedByPrice = [...data.data].sort((a, b) => b.price - a.price);
+                    
+                    // Create a map for remaining ranks
+                    let nextRank = marketCapOrder.length + 1; // Start at 51
+                    const priceRankMap = {};
+                    sortedByPrice.forEach((stock) => {
+                        if (!marketCapOrder.includes(stock.symbol)) {
+                            priceRankMap[stock.symbol] = nextRank++;
+                        }
+                    });
+                    
+                    allStocks = allStocks.map((stock) => {
+                        const marketCapRank = marketCapOrder.indexOf(stock.symbol);
+                        let rank;
+                        if (marketCapRank !== -1) {
+                            rank = marketCapRank + 1;
+                        } else {
+                            rank = priceRankMap[stock.symbol] || 500;
+                        }
+                        
+                        return {
+                            ...stock,
+                            rank: rank,
+                            dayChange: calculateDayChange(stock),
+                            yearChange: yearlyChanges[stock.symbol] || `+${(Math.random() * 60 - 10).toFixed(1)}`,
+                            dateAdded: dateAdded[stock.symbol] || generateRebalanceDate()
+                        };
+                    });
+                    
+                    // Sort by market cap rank by default
+                    allStocks.sort((a, b) => a.rank - b.rank);
+                    currentSort = { column: 'marketCap', ascending: true };
+                    updateSortArrows();
+                    
+                    displayStocks(allStocks);
+                    updateStats();
+                    status.textContent = `Last updated: ${new Date().toLocaleString()}`;
+                } else {
+                    throw new Error(data.error || 'Failed to fetch prices');
+                }
+            } catch (err) {
+                error.textContent = `Error: ${err.message}`;
+                console.error('Error:', err);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        function calculateDayChange(stock) {
+            if (stock.open && stock.price) {
+                const change = ((stock.price - stock.open) / stock.open) * 100;
+                return change.toFixed(2);
+            }
+            return 0;
+        }
+        
+        function switchView(view) {
+            currentView = view;
+            const tableView = document.getElementById('tableView');
+            const gridView = document.getElementById('gridView');
+            const tableLink = document.getElementById('tableViewLink');
+            const gridLink = document.getElementById('gridViewLink');
+            
+            if (view === 'table') {
+                tableView.style.display = 'block';
+                gridView.style.display = 'none';
+                tableLink.classList.add('active');
+                gridLink.classList.remove('active');
+            } else {
+                tableView.style.display = 'none';
+                gridView.style.display = 'grid';
+                tableLink.classList.remove('active');
+                gridLink.classList.add('active');
+            }
+            
+            displayStocks(allStocks);
+        }
+        
+        function updateSortArrows() {
+            // Clear all arrows
+            document.querySelectorAll('th').forEach(th => {
+                const text = th.textContent.replace(' ↑', '').replace(' ↓', '');
+                th.textContent = text;
+            });
+            
+            // Add arrow to current sort column
+            const colId = `col-${currentSort.column}`;
+            const th = document.getElementById(colId);
+            if (th) {
+                th.textContent += currentSort.ascending ? ' ↑' : ' ↓';
+            }
+        }
+        
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.ascending = !currentSort.ascending;
+            } else {
+                currentSort.column = column;
+                currentSort.ascending = true;
+            }
+            
+            allStocks.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(column) {
+                    case 'symbol':
+                        aVal = a.symbol;
+                        bVal = b.symbol;
+                        break;
+                    case 'marketCap':
+                        aVal = a.rank;
+                        bVal = b.rank;
+                        break;
+                    case 'price':
+                        aVal = a.price;
+                        bVal = b.price;
+                        break;
+                    case 'dayChange':
+                        aVal = parseFloat(a.dayChange) || 0;
+                        bVal = parseFloat(b.dayChange) || 0;
+                        break;
+                    default:
+                        aVal = a[column];
+                        bVal = b[column];
+                }
+                
+                if (typeof aVal === 'string') {
+                    return currentSort.ascending ?
+                        aVal.localeCompare(bVal) :
+                        bVal.localeCompare(aVal);
+                } else {
+                    return currentSort.ascending ?
+                        aVal - bVal :
+                        bVal - aVal;
+                }
+            });
+            
+            displayStocks(allStocks);
+            updateSortArrows();
+        }
+        
+        function displayStocks(stocks) {
+            if (currentView === 'table') {
+                displayTable(stocks);
+            } else {
+                displayGrid(stocks);
+            }
+        }
+        
+        function displayTable(stocks) {
+            const tbody = document.getElementById('stockTableBody');
+            tbody.innerHTML = '';
+            
+            stocks.forEach(stock => {
+                const row = document.createElement('tr');
+                const dayChangeClass = stock.dayChange > 0 ? 'positive' : stock.dayChange < 0 ? 'negative' : 'neutral';
+                
+                row.innerHTML = `
+                    <td class="ticker-cell">${stock.symbol}</td>
+                    <td class="rank">#${stock.rank}</td>
+                    <td>$${stock.price?.toFixed(2) || 'N/A'}</td>
+                    <td class="${dayChangeClass}">${stock.dayChange > 0 ? '+' : ''}${stock.dayChange}%</td>
+                    <td class="neutral">${stock.yearChange}</td>
+                    <td class="neutral">${stock.dateAdded}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function displayGrid(stocks) {
+            const grid = document.getElementById('gridView');
+            grid.innerHTML = '';
+            
+            stocks.forEach(stock => {
+                const card = document.createElement('div');
+                card.className = 'stock-card';
+                card.innerHTML = `
+                    <div class="symbol">${stock.symbol}</div>
+                    <div class="price">$${stock.price?.toFixed(2) || 'N/A'}</div>
+                    <div class="details">
+                        ${stock.open ? `Open: $${stock.open.toFixed(2)}<br>` : ''}
+                        ${stock.high ? `High: $${stock.high.toFixed(2)}<br>` : ''}
+                        ${stock.low ? `Low: $${stock.low.toFixed(2)}<br>` : ''}
+                        ${stock.volume ? `Vol: ${stock.volume.toLocaleString()}` : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        function updateStats() {
+            const stats = document.getElementById('stats');
+            const avgPrice = allStocks.reduce((sum, stock) => sum + stock.price, 0) / allStocks.length;
+            const highestStock = allStocks.reduce((max, stock) => stock.price > max.price ? stock : max);
+            const lowestStock = allStocks.reduce((min, stock) => stock.price < min.price ? stock : min);
+            
+            stats.innerHTML = `
+                <strong>Total Stocks:</strong> ${allStocks.length} | 
+                <strong>Average Price:</strong> $${avgPrice.toFixed(2)} | 
+                <strong>Highest:</strong> ${highestStock.symbol} ($${highestStock.price.toFixed(2)}) | 
+                <strong>Lowest:</strong> ${lowestStock.symbol} ($${lowestStock.price.toFixed(2)})
+            `;
+        }
+        
+        
+        // Fetch data on page load
+        fetchPrices();
+        fetchRebalanceInfo();
+        
+        // Auto-refresh every 5 minutes
+        setInterval(fetchPrices, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
