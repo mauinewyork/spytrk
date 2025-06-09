@@ -63,6 +63,10 @@ module.exports = async (req, res) => {
           timestamp: bar.t
         };
 
+        if (symbol === 'BRK.A') {
+          console.log('BRK.A data from Alpaca (iex):', JSON.stringify(bar, null, 2));
+        }
+
         if (etfSymbols.includes(symbol)) {
           etfData[symbol] = dataPoint;
         } else {
