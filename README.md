@@ -1,105 +1,85 @@
-# S&P 500 Price Tracker
+# SPYTRK - S&P 500 Price Tracker
 
-A Node.js Express application that fetches real-time stock prices for all S&P 500 companies using the Alpaca Markets API.
+A real-time S&P 500 stock price tracker with a vaporwave-inspired design, built with React and powered by Alpaca Markets API.
+
+![SPYTRK](https://img.shields.io/badge/SPYTRK-S%26P%20500%20Tracker-ff006e?style=for-the-badge&labelColor=0a0a0a)
 
 ## Features
 
-- Fetch current prices for all 500 S&P 500 companies
-- Get individual stock prices by symbol
-- Batch fetch prices for custom symbol lists
-- Web interface with search and sort functionality
-- Auto-refresh every 5 minutes
-- Clean, responsive UI
+- 🎨 **Vaporwave Aesthetic** - Inspired by retro-futuristic design with glowing effects
+- 📊 **Real-time Stock Prices** - Live data for all 503 S&P 500 companies
+- 🏢 **Company Names** - Full company names displayed alongside ticker symbols
+- 📈 **Market Cap Rankings** - Accurate ranking by market capitalization
+- 📉 **Price Changes** - 1-day and 1-year percentage changes with color coding
+- 🗓️ **Rebalance Tracking** - Shows S&P 500 quarterly rebalance dates
+- 🔄 **Auto-refresh** - Updates every 5 minutes automatically
+- 📱 **Responsive Design** - Works on desktop and mobile devices
+- 📊 **Dual Views** - Toggle between table and grid layouts
+- 📈 **Vercel Analytics** - Built-in analytics and performance tracking
 
-## Prerequisites
+## Tech Stack
 
-- Node.js (v14 or higher)
-- Alpaca Markets API credentials (free at https://alpaca.markets/)
+- **Frontend**: React 18 with Vite
+- **Styling**: Custom CSS with vaporwave theme
+- **Backend**: Node.js with Express (for local development)
+- **API**: Alpaca Markets API
+- **Deployment**: Vercel with serverless functions
+- **Analytics**: Vercel Analytics
 
-## Installation
+## Local Development
 
-1. Clone or navigate to this directory
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Configure your Alpaca API credentials in the `.env` file:
-   ```
-   ALPACA_API_KEY=your_api_key_here
-   ALPACA_API_SECRET=your_api_secret_here
-   ALPACA_BASE_URL=https://paper-api.alpaca.markets
-   ```
-   
-   Note: Use `https://paper-api.alpaca.markets` for paper trading (testing) or `https://api.alpaca.markets` for live trading data.
-
-## Running the Application
-
-Start the server:
+1. Clone the repository:
 ```bash
-node server.js
+git clone https://github.com/mauinewyork/spytrk.git
+cd spytrk
 ```
 
-The server will start on port 3000 (or the port specified in your .env file).
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Create a `.env` file with your Alpaca API credentials:
+```env
+ALPACA_API_KEY=your_api_key_here
+ALPACA_API_SECRET=your_api_secret_here
+```
+
+4. Run the development server:
+```bash
+# Start the backend API server
+npm run server
+
+# In another terminal, start the React dev server
+npm run dev
+```
+
+5. Open http://localhost:5173 in your browser
+
+## Deployment
+
+This project is configured for deployment on Vercel. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 
 ## API Endpoints
 
-- `GET /` - API documentation
-- `GET /api/sp500-prices` - Get all S&P 500 stock prices
-- `GET /api/price/:symbol` - Get price for a specific symbol
-- `POST /api/prices` - Get prices for multiple symbols
-  - Body: `{ "symbols": ["AAPL", "MSFT", "GOOGL"] }`
-- `GET /health` - Health check endpoint
+- `/api/sp500-prices` - Get current prices for all S&P 500 stocks
+- `/api/rebalance-info` - Get S&P 500 rebalance date information
 
-## Web Interface
+## Design
 
-Open your browser and navigate to:
-```
-http://localhost:3000
-```
-
-The web interface provides:
-- Real-time display of all S&P 500 stock prices
-- Search functionality to filter stocks by symbol
-- Sort by symbol or price
-- Auto-refresh every 5 minutes
-- Display of ask/bid prices
-
-## Rate Limits
-
-Alpaca's free tier has rate limits. This application batches requests efficiently to minimize API calls:
-- Fetches stocks in batches of 200 symbols
-- Implements proper error handling for rate limit responses
-
-## Project Structure
-
-```
-sp500-tracker/
-├── server.js           # Express server and API routes
-├── sp500-symbols.js    # List of S&P 500 ticker symbols
-├── public/
-│   └── index.html      # Web interface
-├── .env                # Environment variables (not committed)
-├── .gitignore          # Git ignore file
-├── package.json        # Node.js dependencies
-└── README.md           # This file
-```
-
-## Notes
-
-- The S&P 500 symbol list is current as of 2024 but may need periodic updates
-- Prices shown are the latest available quotes (ask or bid prices)
-- During market hours, prices update in real-time
-- Outside market hours, prices reflect the last available quotes
-
-## Troubleshooting
-
-If you encounter errors:
-1. Verify your Alpaca API credentials are correct in the `.env` file
-2. Check if you're using the correct base URL (paper vs live)
-3. Ensure you have an active internet connection
-4. Check the console for specific error messages
+The SPYTRK interface features:
+- Glowing neon text effects
+- Gradient backgrounds
+- Animated hover states
+- Retro-futuristic typography (Orbitron & Space Mono fonts)
+- Dark theme with accent colors
 
 ## License
 
 MIT
+
+## Credits
+
+- Stock data provided by [Alpaca Markets](https://alpaca.markets/)
+- S&P 500 constituent data from public sources
+- Design inspired by vaporwave aesthetics
