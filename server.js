@@ -38,7 +38,7 @@ app.get('/api/sp500-prices', async (req, res) => {
   try {
     console.log('Fetching S&P 500 and ETF prices...'); // Updated log
     
-    const etfSymbols = ['SPY', 'SPYX']; // Add ETFs to fetch
+    const etfSymbols = ['SPY', 'SPYX', 'SPXS', 'SPXL']; // Add SPXS and SPXL
     const allSymbolsToFetch = [...SP500_SYMBOLS, ...etfSymbols];
 
     // Alpaca allows batching up to 200 symbols per request

@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
   try {
     console.log('Fetching S&P 500 and ETF prices...');
     
-    const etfSymbols = ['SPY', 'SPYX']; // Add ETFs to fetch
+    const etfSymbols = ['SPY', 'SPYX', 'SPXS', 'SPXL']; // Add SPXS and SPXL
     const allSymbolsToFetch = [...SP500_SYMBOLS, ...etfSymbols];
 
     const alpacaConfig = {
