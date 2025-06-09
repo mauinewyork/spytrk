@@ -254,7 +254,23 @@ function App() {
         {!loading && stats.total > 0 && (
           <div className="stats">
             <div className="stat-card">
-              <div className="stat-label">Total Stocks</div>
+              <div className="stat-label">
+                Total Stocks
+                <div className="tooltip" style={{ marginLeft: '8px', display: 'inline-block' }}>
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-content">
+                    <h4>Why 503 Stocks?</h4>
+                    <p>The S&P 500 index includes 500 leading U.S. companies, but the total number of stocks tracked is 503. This is because some companies have multiple classes of stock listed:</p>
+                    <ul>
+                      <li>Alphabet (GOOGL, GOOG)</li>
+                      <li>Berkshire Hathaway (BRK.A, BRK.B)</li>
+                      <li>Fox Corporation (FOXA, FOX)</li>
+                      <li>News Corporation (NWSA, NWS)</li>
+                    </ul>
+                    <p>Brown-Forman (BF.B) also has multiple classes, but only Class B is in the S&P 500.</p>
+                  </div>
+                </div>
+              </div>
               <div className="stat-value">{stats.total}</div>
             </div>
             <div className="stat-card">
