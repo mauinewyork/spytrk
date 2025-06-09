@@ -532,10 +532,72 @@ tr:hover {
   
   th, td {
     padding: 0.75rem 0.5rem;
-    font-size: 0.875rem;
+    font-size: 0.75rem; /* Slightly smaller font for table cells */
+    white-space: nowrap; /* Prevent text wrapping in cells */
+  }
+
+  /* Ensure company name is visible and adjust column widths for small screens */
+  .company-name {
+    display: table-cell !important; /* Ensure it's visible, override potential display:none */
+    font-size: 0.7rem;
+    white-space: normal; /* Allow company name to wrap */
+    min-width: 100px; /* Give it some space */
+    word-break: break-word; /* Help with long names */
+  }
+
+  .ticker, .rank, .price, .change, th {
+     min-width: 50px; /* Give other columns some minimum width */
+     text-align: right; /* Align numbers to the right */
+  }
+  th {
+    text-align: left; /* Keep headers left-aligned */
+  }
+  th:last-child, td:last-child {
+    padding-right: 0.5rem; /* Reduce padding on last cell */
   }
   
+  .etf-ticker-bar {
+    justify-content: flex-start; /* Align items to start on small screens */
+  }
+
+  .etf-ticker-item {
+    min-width: 80px; /* Adjust ETF item width */
+    padding: 0.4rem 0.6rem;
+  }
+  .etf-symbol { font-size: 0.9rem; }
+  .etf-price { font-size: 0.8rem; }
+  .etf-change { font-size: 0.7rem; }
+
+  .top-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo h1 {
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+  }
+
+  th, td {
+    font-size: 0.65rem;
+    padding: 0.5rem 0.25rem;
+  }
   .company-name {
-    display: none;
+    min-width: 70px; /* Further reduce for very small screens */
+    font-size: 0.6rem;
+  }
+   .ticker, .rank, .price, .change, th {
+     min-width: 40px;
+  }
+  .stat-card {
+    padding: 1rem;
+  }
+  .stat-value {
+    font-size: 1.2rem;
+  }
+  .etf-ticker-item {
+    min-width: 65px;
   }
 }
