@@ -58,6 +58,97 @@ body {
   z-index: 2;
 }
 
+/* Rebalance Header */
+.rebalance-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.rebalance-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rebalance-compact span {
+  color: var(--accent-secondary);
+  font-weight: 700;
+}
+
+/* Tooltip */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: rgba(0, 245, 255, 0.2);
+  border: 1px solid var(--accent-secondary);
+  border-radius: 50%;
+  color: var(--accent-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: help;
+  transition: all 0.3s ease;
+}
+
+.tooltip-icon:hover {
+  background: var(--accent-secondary);
+  color: var(--bg-primary);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+}
+
+.tooltip-content {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent-secondary);
+  border-radius: 8px;
+  padding: 1rem;
+  width: 300px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.tooltip:hover .tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(5px);
+}
+
+.tooltip-content h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--accent-secondary);
+  font-size: 1rem;
+}
+
+.tooltip-content p {
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.tooltip-content .note {
+  font-size: 0.75rem;
+  color: var(--accent-tertiary);
+  font-style: italic;
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 /* Logo */
 .logo {
   text-align: center;
@@ -165,22 +256,6 @@ body {
 .status {
   font-size: 0.875rem;
   color: var(--text-secondary);
-}
-
-/* Rebalance Info */
-.rebalance-info {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(0, 245, 255, 0.05);
-  border: 1px solid rgba(0, 245, 255, 0.2);
-  border-radius: 8px;
-  font-size: 0.875rem;
-}
-
-.rebalance-info span {
-  color: var(--accent-secondary);
-  font-weight: 700;
 }
 
 /* Table */

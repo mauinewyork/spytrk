@@ -210,6 +210,24 @@ function App() {
   return (
     <div className="app">
       <div className="container">
+        {rebalanceInfo && (
+          <div className="rebalance-header">
+            <div className="rebalance-compact">
+              Last Rebalance: <span>{rebalanceInfo.lastRebalanceDateFormatted}</span>
+              <div className="tooltip">
+                <span className="tooltip-icon">?</span>
+                <div className="tooltip-content">
+                  <h4>S&P 500 Rebalancing</h4>
+                  <p>The S&P 500 index is rebalanced quarterly on the third Friday of March, June, September, and December.</p>
+                  <p>During rebalancing, companies may be added or removed based on market capitalization, liquidity, and other criteria.</p>
+                  <p>Next rebalance: {rebalanceInfo.nextRebalanceDateFormatted} ({rebalanceInfo.daysUntilNextRebalance} days)</p>
+                  {rebalanceInfo.note && <p className="note">{rebalanceInfo.note}</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="logo">
           <h1>SPYTRK</h1>
         </div>
@@ -232,14 +250,6 @@ function App() {
               <div className="stat-label">Lowest</div>
               <div className="stat-value">{stats.lowest?.symbol} (${stats.lowest?.price?.toFixed(2)})</div>
             </div>
-          </div>
-        )}
-
-        {rebalanceInfo && (
-          <div className="rebalance-info">
-            Last Rebalance: <span>{rebalanceInfo.lastRebalanceDateFormatted}</span> ({rebalanceInfo.daysSinceLastRebalance} days ago) | 
-            Next Rebalance: <span>{rebalanceInfo.nextRebalanceDateFormatted}</span> ({rebalanceInfo.daysUntilNextRebalance} days)
-            {rebalanceInfo.note && <div style={{fontSize: '0.8em', marginTop: '0.5rem'}}>{rebalanceInfo.note}</div>}
           </div>
         )}
 
