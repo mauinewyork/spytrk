@@ -64,6 +64,7 @@ const SP500_COMPANIES = [
   { symbol: "BBWI", name: "Bath & Body Works, Inc." },
   { symbol: "BAX", name: "Baxter International Inc." },
   { symbol: "BDX", name: "Becton, Dickinson and Company" },
+  { symbol: "BRK.A", name: "Berkshire Hathaway Inc. (Class A)" },
   { symbol: "BRK.B", name: "Berkshire Hathaway Inc. (Class B)" },
   { symbol: "BBY", name: "Best Buy Co., Inc." },
   { symbol: "BIO", name: "Bio-Rad Laboratories, Inc." },
