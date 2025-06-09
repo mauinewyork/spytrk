@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
       
       // Get the latest bar data for each symbol
       const response = await axios.get(
-        `${ALPACA_DATA_URL}/v2/stocks/bars/latest?symbols=${symbols}&feed=iex`,
+        `${ALPACA_DATA_URL}/v2/stocks/bars/latest?symbols=${symbols}&feed=sip`,
         alpacaConfig
       );
       
