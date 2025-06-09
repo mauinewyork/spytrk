@@ -387,7 +387,7 @@ tr:hover {
 
 .price {
   font-weight: 700;
-  font-family: 'Orbitron', monospace;
+  /* font-family: 'Orbitron', monospace; */ /* Removed to use default 'Space Mono' */
 }
 
 .change.positive {
