@@ -129,7 +129,7 @@ body {
   width: 300px;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease; /* Explicit transitions */
   z-index: 1000; /* Default z-index for tooltips */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
@@ -253,13 +253,14 @@ body {
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   position: relative; /* Ensure z-index works for tooltip inside */
-  z-index: 5; /* Lower z-index for stat cards */
+  z-index: 5; /* Default z-index for stat cards */
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
   border-color: var(--accent-secondary);
   box-shadow: 0 10px 30px rgba(0, 245, 255, 0.2);
+  z-index: 6; /* Increase z-index on hover to bring it and its tooltip forward */
 }
 
 .stat-label {
@@ -576,8 +577,8 @@ tr:hover {
     flex-direction: column;
     align-items: flex-start;
   }
-  .tooltip-content { /* Ensure tooltip in stats card is above table on small screens */
-    z-index: 1001; /* Higher z-index for tooltip content within stat card on small screens */
+  .tooltip-content {
+    /* z-index: 1001; */ /* This might not be needed if parent .stat-card:hover handles z-index */
   }
 }
 
