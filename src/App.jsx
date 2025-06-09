@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
+import SpyOptionsFlow from './SpyOptionsFlow'; // Import the new component
 
 // Import S&P 500 data
 const marketCapOrder = [
@@ -47,12 +48,111 @@ function App() {
   const [lastUpdate, setLastUpdate] = useState(null);
   const [rebalanceInfo, setRebalanceInfo] = useState(null);
   const [etfData, setEtfData] = useState({}); // New state for ETF data
+  const [marketStatusInfo, setMarketStatusInfo] = useState({
+    label: 'Market Status: Checking...',
+    countdownLabel: '',
+    timeRemaining: { days: 0, hours: 0, minutes: 0, seconds: 0 },
+    isOpen: false,
+  });
+
+  // --- Market Hours Logic (Copied and adapted from SpyOptionsFlow) ---
+  const NYSE_HOLIDAYS_APP = [
+    '2025-01-01', '2025-01-20', '2025-02-17', '2025-04-18',
+    '2025-05-26', '2025-06-19', '2025-07-04', '2025-09-01',
+    '2025-11-27', '2025-12-25',
+  ];
+
+  const getGlobalMarketCountdownStatus = () => {
+    const now = new Date();
+    const nowET = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+
+    const year = nowET.getFullYear();
+    const month = String(nowET.getMonth() + 1).padStart(2, '0');
+    const day = String(nowET.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+
+    const dayOfWeek = nowET.getDay();
+    const hour = nowET.getHours();
+    const minute = nowET.getMinutes();
+
+    let isOpen = false;
+    let targetTimeET = new Date(nowET);
+    let countdownLabel = '';
+    let statusLabel = '';
+
+    const isHoliday = NYSE_HOLIDAYS_APP.includes(todayStr);
+    const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+
+    if (isWeekday && !isHoliday) {
+      if ((hour > 9 || (hour === 9 && minute >= 30)) && hour < 16) {
+        isOpen = true;
+      }
+    }
+    
+    if (isOpen) {
+      statusLabel = 'Market is OPEN';
+      countdownLabel = 'Closes in:';
+      targetTimeET.setHours(16, 0, 0, 0); // Market close 4:00 PM ET
+    } else {
+      statusLabel = 'Market is CLOSED';
+      countdownLabel = 'Opens in:';
+      targetTimeET.setSeconds(0,0);
+
+      if (hour >= 16 || !isWeekday || isHoliday) {
+        targetTimeET.setDate(targetTimeET.getDate() + 1);
+      }
+      
+      while (true) {
+        const nextDayOfWeek = targetTimeET.getDay();
+        const nextYear = targetTimeET.getFullYear();
+        const nextMonth = String(targetTimeET.getMonth() + 1).padStart(2, '0');
+        const nextDayStr = String(targetTimeET.getDate()).padStart(2, '0');
+        const nextDateFullStr = `${nextYear}-${nextMonth}-${nextDayStr}`;
+        
+        if ((nextDayOfWeek >= 1 && nextDayOfWeek <= 5) && !NYSE_HOLIDAYS_APP.includes(nextDateFullStr)) {
+          break;
+        }
+        targetTimeET.setDate(targetTimeET.getDate() + 1);
+      }
+      targetTimeET.setHours(9, 30, 0, 0); // Market open 9:30 AM ET
+    }
+
+    const timeDiff = targetTimeET.getTime() - nowET.getTime();
+    let timeRemaining = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+
+    if (timeDiff > 0) {
+      timeRemaining.days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      timeRemaining.hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      timeRemaining.minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      timeRemaining.seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+    }
+    
+    return {
+      label: statusLabel,
+      countdownLabel: countdownLabel,
+      timeRemaining: timeRemaining,
+      isOpen: isOpen,
+    };
+  };
+  // --- End Market Hours Logic ---
+
 
   useEffect(() => {
     fetchPrices();
     fetchRebalanceInfo();
-    const interval = setInterval(fetchPrices, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    
+    const updateStatus = () => {
+      setMarketStatusInfo(getGlobalMarketCountdownStatus());
+    };
+    updateStatus(); // Initial call
+    
+    const pricesInterval = setInterval(fetchPrices, 5 * 60 * 1000);
+    const statusInterval = setInterval(updateStatus, 1000); // Update countdown every second
+    
+    return () => {
+      clearInterval(pricesInterval);
+      clearInterval(statusInterval);
+    };
   }, []);
 
   const fetchRebalanceInfo = async () => {
@@ -230,6 +330,18 @@ function App() {
               </div>
             </div>
           )}
+          <div className="market-status-header" style={{ textAlign: 'left', fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '5px', marginBottom: '10px', paddingLeft: '1rem' }}>
+            <div>{marketStatusInfo.label}</div>
+            {marketStatusInfo.timeRemaining.days >= 0 && marketStatusInfo.timeRemaining.hours >=0 && marketStatusInfo.timeRemaining.minutes >=0 && marketStatusInfo.timeRemaining.seconds >=0 && (
+                 <div>
+                    {marketStatusInfo.countdownLabel}{' '}
+                    {String(marketStatusInfo.timeRemaining.days).padStart(2, '0')}d :{' '}
+                    {String(marketStatusInfo.timeRemaining.hours).padStart(2, '0')}h :{' '}
+                    {String(marketStatusInfo.timeRemaining.minutes).padStart(2, '0')}m :{' '}
+                    {String(marketStatusInfo.timeRemaining.seconds).padStart(2, '0')}s
+                </div>
+            )}
+          </div>
           <div className="etf-ticker-bar">
             {Object.values(etfData).map(etf => {
               const dayChange = etf.open && etf.price ? ((etf.price - etf.open) / etf.open * 100).toFixed(2) : 0;
@@ -302,6 +414,12 @@ function App() {
             >
               Grid View
             </button>
+            <button
+              className={viewMode === 'options' ? 'active' : ''}
+              onClick={() => setViewMode('options')}
+            >
+              SPY Options Flow
+            </button>
           </div>
           {lastUpdate && (
             <div className="status">
@@ -321,6 +439,8 @@ function App() {
             <div className="loader"></div>
             <p>Loading S&P 500 prices...</p>
           </div>
+        ) : viewMode === 'options' ? (
+          <SpyOptionsFlow />
         ) : viewMode === 'table' ? (
           <div className="table-container">
             <table>

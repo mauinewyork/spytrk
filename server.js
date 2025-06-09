@@ -4,6 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const { SP500_SYMBOLS, SP500_COMPANIES, getRebalanceDates } = require('./sp500-symbols');
+const spyOptionsFlowHandler = require('./api/spy-options-flow');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -253,6 +254,9 @@ app.get('/api/rebalance-info', (req, res) => {
   });
 });
 
+// Route for SPY 0DTE options flow
+app.get('/api/spy-options-flow', spyOptionsFlowHandler);
+
 // Root route
 app.get('/', (req, res) => {
   res.json({
@@ -263,6 +267,7 @@ app.get('/', (req, res) => {
       'POST /api/prices': 'Get prices for multiple symbols (body: { symbols: [...] })',
       'GET /api/rebalance-info': 'Get S&P 500 rebalance schedule information',
       'GET /api/test-connection': 'Test Alpaca API connection',
+      'GET /api/spy-options-flow': 'Get SPY 0DTE options flow data (experimental)',
       'GET /health': 'Health check'
     }
   });
