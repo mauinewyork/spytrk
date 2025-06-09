@@ -46,6 +46,7 @@ function App() {
   const [sortConfig, setSortConfig] = useState({ column: 'marketCap', ascending: true });
   const [lastUpdate, setLastUpdate] = useState(null);
   const [rebalanceInfo, setRebalanceInfo] = useState(null);
+  const [etfData, setEtfData] = useState({}); // New state for ETF data
 
   useEffect(() => {
     fetchPrices();
@@ -75,6 +76,7 @@ function App() {
       if (data.success) {
         const processedStocks = processStockData(data.data);
         setStocks(processedStocks);
+        setEtfData(data.etfData || {}); // Store ETF data
         setLastUpdate(new Date());
       } else {
         throw new Error(data.error || 'Failed to fetch prices');
@@ -210,23 +212,40 @@ function App() {
   return (
     <div className="app">
       <div className="container">
-        {rebalanceInfo && (
-          <div className="rebalance-header">
-            <div className="rebalance-compact">
-              Last Rebalance: <span>{rebalanceInfo.lastRebalanceDateFormatted}</span>
-              <div className="tooltip">
-                <span className="tooltip-icon">?</span>
-                <div className="tooltip-content">
-                  <h4>S&P 500 Rebalancing</h4>
-                  <p>The S&P 500 index is rebalanced quarterly on the third Friday of March, June, September, and December.</p>
-                  <p>During rebalancing, companies may be added or removed based on market capitalization, liquidity, and other criteria.</p>
-                  <p>Next rebalance: {rebalanceInfo.nextRebalanceDateFormatted} ({rebalanceInfo.daysUntilNextRebalance} days)</p>
-                  {rebalanceInfo.note && <p className="note">{rebalanceInfo.note}</p>}
+        <div className="top-header">
+          {rebalanceInfo && (
+            <div className="rebalance-header">
+              <div className="rebalance-compact">
+                Last Rebalance: <span>{rebalanceInfo.lastRebalanceDateFormatted}</span>
+                <div className="tooltip">
+                  <span className="tooltip-icon">?</span>
+                  <div className="tooltip-content">
+                    <h4>S&P 500 Rebalancing</h4>
+                    <p>The S&P 500 index is rebalanced quarterly on the third Friday of March, June, September, and December.</p>
+                    <p>During rebalancing, companies may be added or removed based on market capitalization, liquidity, and other criteria.</p>
+                    <p>Next rebalance: {rebalanceInfo.nextRebalanceDateFormatted} ({rebalanceInfo.daysUntilNextRebalance} days)</p>
+                    {rebalanceInfo.note && <p className="note">{rebalanceInfo.note}</p>}
+                  </div>
                 </div>
               </div>
             </div>
+          )}
+          <div className="etf-ticker-bar">
+            {Object.values(etfData).map(etf => {
+              const dayChange = etf.open && etf.price ? ((etf.price - etf.open) / etf.open * 100).toFixed(2) : 0;
+              const changeClass = dayChange > 0 ? 'positive' : dayChange < 0 ? 'negative' : 'neutral';
+              return (
+                <div key={etf.symbol} className="etf-ticker-item">
+                  <span className="etf-symbol">{etf.symbol}</span>
+                  <span className="etf-price">${etf.price?.toFixed(2)}</span>
+                  <span className={`etf-change ${changeClass}`}>
+                    {dayChange > 0 ? '+' : ''}{dayChange}%
+                  </span>
+                </div>
+              );
+            })}
           </div>
-        )}
+        </div>
         
         <div className="logo">
           <h1>SPYTRK</h1>

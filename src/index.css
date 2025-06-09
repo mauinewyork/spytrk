@@ -58,10 +58,22 @@ body {
   z-index: 2;
 }
 
+/* Top Header (Rebalance + ETF Ticker) */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 /* Rebalance Header */
 .rebalance-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  /* text-align: center; remove to align left */
+  /* margin-bottom: 2rem; remove as it's part of top-header */
   font-size: 0.875rem;
   color: var(--text-secondary);
 }
@@ -149,10 +161,57 @@ body {
   margin-top: 0.5rem;
 }
 
+/* ETF Ticker Bar */
+.etf-ticker-bar {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  overflow-x: auto; /* For smaller screens */
+  padding: 0.5rem 0;
+}
+
+.etf-ticker-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align text to the left */
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  min-width: 100px; /* Ensure items have some width */
+}
+
+.etf-symbol {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-tertiary);
+}
+
+.etf-price {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.etf-change {
+  font-size: 0.8rem;
+}
+
+.etf-change.positive {
+  color: var(--positive);
+}
+.etf-change.negative {
+  color: var(--negative);
+}
+.etf-change.neutral {
+  color: var(--text-secondary);
+}
+
+
 /* Logo */
 .logo {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem; /* Reduced margin as top-header adds space */
   animation: glow 2s ease-in-out infinite alternate;
 }
 
