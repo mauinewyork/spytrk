@@ -36,11 +36,15 @@ function chunkArray(array, size) {
 // Route to get all S&P 500 prices
 app.get('/api/sp500-prices', async (req, res) => {
   try {
-    console.log('Fetching S&P 500 prices...');
+    console.log('Fetching S&P 500 and ETF prices...'); // Updated log
     
+    const etfSymbols = ['SPY', 'SPYX']; // Add ETFs to fetch
+    const allSymbolsToFetch = [...SP500_SYMBOLS, ...etfSymbols];
+
     // Alpaca allows batching up to 200 symbols per request
-    const symbolChunks = chunkArray(SP500_SYMBOLS, 200);
+    const symbolChunks = chunkArray(allSymbolsToFetch, 200); // Use the combined list
     const allPrices = [];
+    const etfData = {}; // To store ETF specific data
     
     for (const chunk of symbolChunks) {
       const symbols = chunk.join(',');
@@ -55,27 +59,34 @@ app.get('/api/sp500-prices', async (req, res) => {
       for (const [symbol, bar] of Object.entries(response.data.bars || {})) {
         // Find the company name from our SP500_COMPANIES list
         const company = SP500_COMPANIES.find(c => c.symbol === symbol);
-        allPrices.push({
+        const dataPoint = {
           symbol,
-          name: company ? company.name : symbol, // Use company name if found
+          name: company ? company.name : (etfSymbols.includes(symbol) ? symbol : 'N/A'), // Handle ETF names
           price: bar.c, // Close price
           open: bar.o,
           high: bar.h,
           low: bar.l,
           volume: bar.v,
           timestamp: bar.t
-        });
+        };
+
+        if (etfSymbols.includes(symbol)) {
+          etfData[symbol] = dataPoint;
+        } else {
+          allPrices.push(dataPoint);
+        }
       }
     }
     
-    // Sort by symbol
+    // Sort S&P 500 stocks by symbol
     allPrices.sort((a, b) => a.symbol.localeCompare(b.symbol));
     
     res.json({
       success: true,
-      count: allPrices.length,
+      count: allPrices.length, // Count only S&P 500 stocks
       timestamp: new Date().toISOString(),
-      data: allPrices
+      data: allPrices,
+      etfData: etfData // Add ETF data to the response
     });
     
   } catch (error) {
