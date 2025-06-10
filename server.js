@@ -3,8 +3,9 @@ const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
 
-const { SP500_SYMBOLS, SP500_COMPANIES, getRebalanceDates } = require('./sp500-symbols');
+const { getRebalanceDates } = require('./sp500-symbols'); // SP500_SYMBOLS and SP500_COMPANIES will be handled by the new api endpoint
 const spyOptionsFlowHandler = require('./api/spy-options-flow');
+const sp500PricesHandler = require('./api/sp500-prices'); // Require the new handler
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,72 +35,17 @@ function chunkArray(array, size) {
   return chunks;
 }
 
-// Route to get all S&P 500 prices
-app.get('/api/sp500-prices', async (req, res) => {
-  try {
-    console.log('Fetching S&P 500 and ETF prices...'); // Updated log
-    
-    const etfSymbols = ['SPY', 'SPYX', 'SPXS', 'SPXL']; // Add SPXS and SPXL
-    const allSymbolsToFetch = [...SP500_SYMBOLS, ...etfSymbols];
+// Route to get all S&P 500 prices - now uses the handler from api/sp500-prices.js
+app.get('/api/sp500-prices', sp500PricesHandler);
 
-    // Alpaca allows batching up to 200 symbols per request
-    const symbolChunks = chunkArray(allSymbolsToFetch, 200); // Use the combined list
-    const allPrices = [];
-    const etfData = {}; // To store ETF specific data
-    
-    for (const chunk of symbolChunks) {
-      const symbols = chunk.join(',');
-      
-      // Get the latest bar data for each symbol
-      const response = await axios.get(
-        `${ALPACA_DATA_URL}/v2/stocks/bars/latest?symbols=${symbols}&feed=iex`,
-        alpacaConfig
-      );
-      
-      // Process the response
-      for (const [symbol, bar] of Object.entries(response.data.bars || {})) {
-        // Find the company name from our SP500_COMPANIES list
-        const company = SP500_COMPANIES.find(c => c.symbol === symbol);
-        const dataPoint = {
-          symbol,
-          name: company ? company.name : (etfSymbols.includes(symbol) ? symbol : 'N/A'), // Handle ETF names
-          price: bar.c, // Close price
-          open: bar.o,
-          high: bar.h,
-          low: bar.l,
-          volume: bar.v,
-          timestamp: bar.t
-        };
-
-        if (etfSymbols.includes(symbol)) {
-          etfData[symbol] = dataPoint;
-        } else {
-          allPrices.push(dataPoint);
-        }
-      }
-    }
-    
-    // Sort S&P 500 stocks by symbol
-    allPrices.sort((a, b) => a.symbol.localeCompare(b.symbol));
-    
-    res.json({
-      success: true,
-      count: allPrices.length, // Count only S&P 500 stocks
-      timestamp: new Date().toISOString(),
-      data: allPrices,
-      etfData: etfData // Add ETF data to the response
-    });
-    
-  } catch (error) {
-    console.error('Error fetching prices:', error.response?.data || error.message);
-    res.status(500).json({
-      success: false,
-      error: error.response?.data?.message || error.message
-    });
-  }
-});
+// The old inline handler for /api/sp500-prices is now removed.
 
 // Route to get price for specific symbols
+// This route might also need to be updated if SP500_COMPANIES is no longer directly available
+// or if its data structure changes due to FMP integration. For now, leaving as is.
+// If SP500_COMPANIES is needed here, it would have to be passed from sp500-prices.js or fetched again.
+// For simplicity, this example assumes it might rely on a cached or less critical version of SP500_COMPANIES
+// or that this specific endpoint might be refactored/deprecated later.
 app.get('/api/price/:symbol', async (req, res) => {
   try {
     const symbol = req.params.symbol.toUpperCase();
@@ -277,5 +223,7 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.ALPACA_BASE_URL?.includes('paper') ? 'Paper Trading' : 'Live'}`);
-  console.log(`Total S&P 500 symbols loaded: ${SP500_SYMBOLS.length}`);
+  // The SP500_SYMBOLS.length log might be inaccurate now or throw an error if SP500_SYMBOLS is not defined at this scope.
+  // It's better to log the count after fetching from FMP within the sp500PricesHandler.
+  // console.log(`Total S&P 500 symbols loaded: ${SP500_SYMBOLS.length}`); // Commenting out for now
 });

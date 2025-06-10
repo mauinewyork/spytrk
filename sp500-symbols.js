@@ -1,5 +1,5 @@
-// S&P 500 Ticker Symbols with Company Names (Updated: 2025-06-08)
-// Total: 503 stocks (includes companies with multiple share classes)
+// S&P 500 Ticker Symbols with Company Names (Updated: 2025-06-10)
+// Total: 504 stocks (includes companies with multiple share classes, and COIN)
 
 const SP500_COMPANIES = [
   { symbol: "MMM", name: "3M Company" },
@@ -120,6 +120,7 @@ const SP500_COMPANIES = [
   { symbol: "CLX", name: "The Clorox Company" },
   { symbol: "CME", name: "CME Group Inc." },
   { symbol: "CMS", name: "CMS Energy Corporation" },
+  { symbol: "COIN", name: "Coinbase Global, Inc." }, // Added COIN
   { symbol: "KO", name: "The Coca-Cola Company" },
   { symbol: "CTSH", name: "Cognizant Technology Solutions Corporation" },
   { symbol: "CL", name: "Colgate-Palmolive Company" },

@@ -217,13 +217,12 @@ function App() {
         rank,
         dayChange,
         yearChange: yearlyChanges[stock.symbol] || (Math.random() * 60 - 10).toFixed(1),
-        dateAdded: dateAdded[stock.symbol] || generateRebalanceDate()
-        // float: stock.float // REMOVED
+        dateAdded: dateAdded[stock.symbol] || generateRebalanceDate() // Restored
       };
     });
   };
 
-  const generateRebalanceDate = () => {
+  const generateRebalanceDate = () => { // Restored
     const getThirdFriday = (year, month) => {
       const date = new Date(year, month, 1);
       const firstDay = date.getDay();
@@ -377,7 +376,7 @@ function App() {
                   <span className="tooltip-icon">?</span>
                   <div className="tooltip-content">
                     <h4>Why 503 Stocks?</h4>
-                    <p>The S&P 500 index includes 500 leading U.S. companies, but the total number of stocks can be slightly higher (e.g., 504) when some companies have multiple classes of stock listed. Common examples include:</p>
+                    <p>The S&P 500 index includes 500 leading U.S. companies. The total number of tracked stocks is currently {stats.total} because some companies have multiple classes of stock listed. Common examples include:</p>
                     <ul>
                       <li>Alphabet (GOOGL, GOOG)</li>
                       <li>Berkshire Hathaway (BRK.A, BRK.B)</li>

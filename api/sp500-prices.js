@@ -20,10 +20,10 @@ module.exports = async (req, res) => {
   }
   
   try {
-    console.log('Fetching S&P 500 and ETF prices...');
+    console.log('Fetching S&P 500 and ETF prices (using IEX feed)...'); // Updated log
     
-    const etfSymbols = ['SPY', 'SPYX', 'SPXS', 'SPXL']; // Add SPXS and SPXL
-    const allSymbolsToFetch = [...SP500_SYMBOLS, ...etfSymbols];
+    const etfSymbols = ['SPY', 'SPYX', 'SPXS', 'SPXL'];
+    const allSymbolsToFetch = [...SP500_SYMBOLS, ...etfSymbols]; // Using hardcoded symbols
 
     const alpacaConfig = {
       headers: {
@@ -44,29 +44,28 @@ module.exports = async (req, res) => {
       
       // Get the latest bar data for each symbol
       const response = await axios.get(
-        `${ALPACA_DATA_URL}/v2/stocks/bars/latest?symbols=${symbols}&feed=sip`,
+        `${ALPACA_DATA_URL}/v2/stocks/bars/latest?symbols=${symbols}&feed=iex`, // Changed to iex
         alpacaConfig
       );
       
       // Process the response
       for (const [symbol, bar] of Object.entries(response.data.bars || {})) {
-        // Find the company name from our SP500_COMPANIES list
         const company = SP500_COMPANIES.find(c => c.symbol === symbol);
         const dataPoint = {
           symbol,
-          name: company ? company.name : symbol, // Use company name if found
-          price: bar.c, // Close price
+          name: company ? company.name : symbol,
+          price: bar.c,
           open: bar.o,
           high: bar.h,
           low: bar.l,
           volume: bar.v,
           timestamp: bar.t
-          // Removed float property
         };
 
-        if (symbol === 'BRK.A') {
-          console.log('BRK.A bar data from Alpaca (sip):', JSON.stringify(bar, null, 2));
-        }
+        // Removed BRK.A specific log as it was for sip/iex comparison primarily
+        // if (symbol === 'BRK.A') {
+        //   console.log('BRK.A bar data from Alpaca (iex):', JSON.stringify(bar, null, 2));
+        // }
 
         if (etfSymbols.includes(symbol)) {
           etfData[symbol] = dataPoint;
@@ -84,7 +83,7 @@ module.exports = async (req, res) => {
       count: allPrices.length, // Count only S&P 500 stocks
       timestamp: new Date().toISOString(),
       data: allPrices,
-      etfData: etfData // Add ETF data to the response
+      etfData: etfData
     });
     
   } catch (error) {
