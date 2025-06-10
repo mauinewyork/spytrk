@@ -61,10 +61,11 @@ module.exports = async (req, res) => {
           low: bar.l,
           volume: bar.v,
           timestamp: bar.t
+          // Removed float property
         };
 
         if (symbol === 'BRK.A') {
-          console.log('BRK.A data from Alpaca (iex):', JSON.stringify(bar, null, 2));
+          console.log('BRK.A bar data from Alpaca (sip):', JSON.stringify(bar, null, 2));
         }
 
         if (etfSymbols.includes(symbol)) {

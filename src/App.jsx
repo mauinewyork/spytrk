@@ -56,9 +56,9 @@ function App() {
   });
 
   // --- Market Hours Logic (Copied and adapted from SpyOptionsFlow) ---
-  const NYSE_HOLIDAYS_APP = [
-    '2025-01-01', '2025-01-20', '2025-02-17', '2025-04-18',
-    '2025-05-26', '2025-06-19', '2025-07-04', '2025-09-01',
+  const NYSE_HOLIDAYS_APP = [ 
+    '2025-01-01', '2025-01-20', '2025-02-17', '2025-04-18', 
+    '2025-05-26', '2025-06-19', '2025-07-04', '2025-09-01', 
     '2025-11-27', '2025-12-25',
   ];
 
@@ -110,7 +110,7 @@ function App() {
         const nextDateFullStr = `${nextYear}-${nextMonth}-${nextDayStr}`;
         
         if ((nextDayOfWeek >= 1 && nextDayOfWeek <= 5) && !NYSE_HOLIDAYS_APP.includes(nextDateFullStr)) {
-          break;
+          break; 
         }
         targetTimeET.setDate(targetTimeET.getDate() + 1);
       }
@@ -218,6 +218,7 @@ function App() {
         dayChange,
         yearChange: yearlyChanges[stock.symbol] || (Math.random() * 60 - 10).toFixed(1),
         dateAdded: dateAdded[stock.symbol] || generateRebalanceDate()
+        // float: stock.float // REMOVED
       };
     });
   };
@@ -256,7 +257,7 @@ function App() {
         aVal = a.name || a.symbol;
         bVal = b.name || b.symbol;
         break;
-      case 'marketCap':
+      case 'marketCap': // This is actually 'Rank' now in display
         aVal = a.rank;
         bVal = b.rank;
         break;
@@ -276,6 +277,10 @@ function App() {
         aVal = a.dateAdded;
         bVal = b.dateAdded;
         break;
+      // case 'float': // REMOVED
+      //   aVal = a.float || 0;
+      //   bVal = b.float || 0;
+      //   break;
       default:
         aVal = a[column];
         bVal = b[column];
@@ -453,7 +458,7 @@ function App() {
                     Company Name {sortConfig.column === 'name' && (sortConfig.ascending ? '↑' : '↓')}
                   </th>
                   <th onClick={() => handleSort('marketCap')}>
-                    Rank by Market Cap {sortConfig.column === 'marketCap' && (sortConfig.ascending ? '↑' : '↓')}
+                    Rank {sortConfig.column === 'marketCap' && (sortConfig.ascending ? '↑' : '↓')}
                   </th>
                   <th onClick={() => handleSort('price')}>
                     Price {sortConfig.column === 'price' && (sortConfig.ascending ? '↑' : '↓')}
@@ -467,6 +472,9 @@ function App() {
                   <th onClick={() => handleSort('dateAdded')}>
                     Date Added {sortConfig.column === 'dateAdded' && (sortConfig.ascending ? '↑' : '↓')}
                   </th>
+                  {/* <th onClick={() => handleSort('float')}>
+                    Float {sortConfig.column === 'float' && (sortConfig.ascending ? '↑' : '↓')}
+                  </th> */}
                 </tr>
               </thead>
               <tbody>
@@ -488,13 +496,14 @@ function App() {
                         {!isNaN(yearChangeValue) ? (yearChangeValue > 0 ? '+' : '') + yearChangeValue + '%' : 'N/A'}
                       </td>
                       <td>{stock.dateAdded}</td>
+                      {/* <td>{stock.float ? stock.float.toLocaleString() : 'N/A'}</td> */}
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
-        ) : (
+        ) : ( // Grid View
           <div className="grid">
             {sortedStocks.map((stock) => (
               <div key={stock.symbol} className="stock-card">
@@ -520,6 +529,10 @@ function App() {
                         <span>Volume</span>
                         <span className="stock-detail-value">{stock.volume?.toLocaleString()}</span>
                       </div>
+                      {/* <div className="stock-detail">
+                        <span>Float</span>
+                        <span className="stock-detail-value">{stock.float ? stock.float.toLocaleString() : 'N/A'}</span>
+                      </div> */}
                     </>
                   )}
                 </div>
@@ -527,7 +540,26 @@ function App() {
             ))}
           </div>
         )}
-      </div>
+      </div> {/* End of .container */}
+
+      <footer className="app-footer">
+        <hr className="footer-rule" />
+        <div className="footer-content">
+          <div className="footer-contact">
+            <a href="mailto:info@spytrk.com">info@spytrk.com</a>
+          </div>
+          <nav className="footer-links">
+            <ul>
+              <li><a href="#/privacy-policy">Privacy Policy</a></li>
+              <li><a href="#/terms-of-use">Terms of Use</a></li>
+              <li><a href="#/trade-spy-options">Trade SPY Options</a></li>
+            </ul>
+          </nav>
+        </div>
+        <div className="footer-copyright">
+          &copy; {new Date().getFullYear()} SPYTRK. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 }
